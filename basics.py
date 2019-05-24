@@ -5,8 +5,9 @@
 
 import sys
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QAction, QMainWindow, QMessageBox, QCheckBox
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QAction, QMainWindow, QMessageBox, QCheckBox, QProgressBar, QLabel, QComboBox, QStyleFactory
 from PyQt5.QtGui import QIcon
+import time
 
 class App(QMainWindow):
     def __init__(self):
@@ -17,7 +18,7 @@ class App(QMainWindow):
         self.width = 640
         self.height = 480
 
-        # MenuBar
+        # MenuBar and Status Bar
         ExtractAction = QAction("&Fanny Magnet", self)
         ExtractAction.setShortcut("Ctrl+Q")
         ExtractAction.setStatusTip("Leave Me Alone")    # Shown Below just like browsers.
@@ -55,7 +56,37 @@ class App(QMainWindow):
         CheckBox.stateChanged.connect(self.TestCheckBox)
         CheckBox.setChecked(False)
         CheckBox.move(100, 100)
+
+        # ProgressBar
+        self.progressBar = QProgressBar(self)
+        self.progressBar.setGeometry(300, 100, 250, 20)
+        self.downloadBtn = QPushButton("Download", self)
+        self.downloadBtn.move(300, 150)
+        self.downloadBtn.clicked.connect(self.Download)
+        
+        # Style
+        print(self.style().objectName())
+        self.styleChoice = QLabel("Windows", self)
+
+        # Drop-down menu to change options.
+        comboBox = QComboBox(self)
+        comboBox.addItems(["motif", "Windows", "cde", "Plastique", "Cleanlooks", "windowsvista"])
+        comboBox.move(100, 300)
+        self.styleChoice.move(100, 350)
+        comboBox.activated[str].connect(self.style_choice)
+
         self.show()
+
+    def style_choice(self, text):
+        self.styleChoice.setText(text)
+        QApplication.setStyle(QStyleFactory.create(text))
+
+    def Download(self):
+        self.completed = 0
+        while self.completed < 10:
+            time.sleep(1)
+            self.completed += 1
+            self.progressBar.setValue(self.completed*10)
 
     def TestCheckBox(self, state):
         if state == QtCore.Qt.Checked:
