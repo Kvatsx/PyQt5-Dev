@@ -5,7 +5,7 @@
 
 import sys
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QAction, QMainWindow, QMessageBox, QCheckBox, QProgressBar, QLabel, QComboBox, QStyleFactory
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QAction, QMainWindow, QMessageBox, QCheckBox, QProgressBar, QLabel, QComboBox, QStyleFactory, QTextEdit, QFileDialog
 from PyQt5.QtGui import QIcon
 import time
 
@@ -23,11 +23,33 @@ class App(QMainWindow):
         ExtractAction.setShortcut("Ctrl+Q")
         ExtractAction.setStatusTip("Leave Me Alone")    # Shown Below just like browsers.
         ExtractAction.triggered.connect(self.CloseApp)
+
+        # Editor option in MenuBar
+        OpenEditor = QAction("&Editor", self)
+        OpenEditor.setShortcut("Ctrl+E")
+        OpenEditor.setStatusTip("Open Editor")
+        OpenEditor.triggered.connect(self.editor)
+
+        # Open File option in MenuBar
+        OpenFile = QAction("&Open File", self)
+        OpenFile.setShortcut("Ctrl+O")
+        OpenFile.setStatusTip("Open File")
+        OpenFile.triggered.connect(self.open_file)
+
+        # Save File
+        SaveFile = QAction("&Save File", self)
+        SaveFile.setShortcut("Ctrl+S")
+        SaveFile.setStatusTip("Save File")
+        SaveFile.triggered.connect(self.save_file)
+
         self.statusBar()
         mainMenu = self.menuBar()
         FileMenu = mainMenu.addMenu("&File")
-        HelpMenu = mainMenu.addMenu("&Help")
+        EditorMenu = mainMenu.addMenu("&Editor")
         FileMenu.addAction(ExtractAction)
+        FileMenu.addAction(OpenFile)    # Open file Action in Main File menu.
+        FileMenu.addAction(SaveFile)    # Save file action
+        EditorMenu.addAction(OpenEditor)    # Action onClick for Editor Menu
 
         self.initGUI()
 
@@ -65,7 +87,7 @@ class App(QMainWindow):
         self.downloadBtn.clicked.connect(self.Download)
         
         # Style
-        print(self.style().objectName())
+        # print(self.style().objectName())
         self.styleChoice = QLabel("Windows", self)
 
         # Drop-down menu to change options.
@@ -80,6 +102,27 @@ class App(QMainWindow):
     def style_choice(self, text):
         self.styleChoice.setText(text)
         QApplication.setStyle(QStyleFactory.create(text))
+
+    def editor(self):
+        self.textEdit = QTextEdit()
+        self.setCentralWidget(self.textEdit)    # Sets Main window as Editor
+
+    def open_file(self):
+        name = QFileDialog.getOpenFileName(self, 'Open File')
+        print(name)
+        file = open(name[0], 'r')
+        self.editor()
+        with file:
+            text = file.read()
+            self.textEdit.setText(text)
+
+    def save_file(self):
+        name = QFileDialog.getSaveFileName(self, "Save File")
+        print(name)
+        file = open(name[0], 'w')
+        text = self.textEdit.toPlainText()
+        file.write(text)
+        file.close()
 
     def Download(self):
         self.completed = 0
